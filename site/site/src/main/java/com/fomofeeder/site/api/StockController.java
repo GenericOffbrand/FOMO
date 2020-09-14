@@ -19,21 +19,5 @@ public class StockController
 
 
 
-    //methods for testing
-    //will not be present in final product.
 
-    //redirects back and forth until browser stops process. Logs all redirects into console
-    @RequestMapping("/ping.html")
-    public String PingController()
-    {
-        System.out.println("PING");
-        return "redirect:/pong.html";
-    }
-
-    @RequestMapping("/pong.html")
-    public String PongController()
-    {
-        System.out.println("PONG");
-        return "redirect:/ping.html";
-    }
 }
