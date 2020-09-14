@@ -11,9 +11,9 @@ public class Stock
 {
     private String name;
     private String tickerSymbol;
-    private double displayPriotiy;
+    private double displayPriority;
     //does there have to be a spring bean injection here to make this work?
-    private ArrayList<PricePoint> priceHistory;
+    private ArrayList<PricePoint> priceHistory = new ArrayList<>();
 
     public Stock(@JsonProperty("name") String name,
                  @JsonProperty("tickerSymbol") String tickerSymbol)
@@ -32,4 +32,18 @@ public class Stock
         return tickerSymbol;
     }
 
+    public ArrayList<PricePoint> getPriceHistory()
+    {
+        return priceHistory;
+    }
+
+    public double getDisplayPriority()
+    {
+        return displayPriority;
+    }
+
+    public void setDisplayPriority(double displayPriority)
+    {
+        this.displayPriority = displayPriority;
+    }
 }

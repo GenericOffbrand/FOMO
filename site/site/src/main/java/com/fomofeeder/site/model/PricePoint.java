@@ -30,5 +30,38 @@ public class PricePoint
         this.time = time;
     }
 
+    public double getHigh()
+    {
+        return high;
+    }
 
+    public double getLow()
+    {
+        return low;
+    }
+
+    public double getOpen()
+    {
+        return open;
+    }
+
+    public double getClose()
+    {
+        return close;
+    }
+
+    public double getVolume()
+    {
+        return volume;
+    }
+
+    public double getPercentChange()
+    {
+        return percentChange;
+    }
+
+    public long getTime()
+    {
+        return time;
+    }
 }

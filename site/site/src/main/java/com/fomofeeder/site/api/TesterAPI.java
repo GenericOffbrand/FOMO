@@ -1,5 +1,6 @@
 package com.fomofeeder.site.api;
 
+import com.fomofeeder.site.model.PricePoint;
 import com.fomofeeder.site.model.Stock;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +49,26 @@ public class TesterAPI
 //        this.testString = testString;
 //    }
 
+
+    //Test using this:
+    /*
+    POST: localhost:8080/test/
+    {
+    "name": "Apple Computers",
+    "tickerSymbol": "APPL"
+    }
+
+    POST: localhost:8080/test/stockdata
+    {
+    "high": 332.00,
+    "low" : 320,
+    "open": 340.95,
+    "close": 429.62,
+    "volume": 70440000,
+    "percentChange": -19.79,
+    "time": 55
+    }
+     */
     @GetMapping
     @ResponseBody
     public Stock getTestStock()
@@ -62,5 +83,17 @@ public class TesterAPI
         this.testStock = testStock;
         System.out.println(this.testStock.getName());
         System.out.println(this.testStock.getTickerSymbol());
+    }
+
+    @RequestMapping("stockdata")
+    @PostMapping
+    @ResponseBody
+    public void addStockData (@RequestBody PricePoint pricePoint)
+    {
+        System.out.println("You're adding a price now");
+        testStock.getPriceHistory().add(pricePoint);
+        System.out.println(testStock.getPriceHistory().get(0).getClose());
+        System.out.println(testStock.getPriceHistory().get(0).getHigh());
+
     }
 }
