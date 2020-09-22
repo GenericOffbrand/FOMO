@@ -1,5 +1,7 @@
 package com.fomofeeder.site.api;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fomofeeder.site.model.PricePoint;
 import com.fomofeeder.site.model.Stock;
 import org.springframework.stereotype.Controller;
@@ -60,17 +62,14 @@ public class TesterAPI
 
     POST: localhost:8080/test/stockdata
     {
-    "high": 332.00,
-    "low" : 320,
-    "open": 340.95,
-    "close": 429.62,
-    "volume": 70440000,
-    "percentChange": -19.79,
+    "price": 140.42,
     "time": 55
     }
      */
     @GetMapping
     @ResponseBody
+    @JsonIgnore
+    @JsonIgnoreProperties("displayPriority")
     public Stock getTestStock()
     {
         return testStock;
@@ -92,8 +91,8 @@ public class TesterAPI
     {
         System.out.println("You're adding a price now");
         testStock.getPriceHistory().add(pricePoint);
-        System.out.println(testStock.getPriceHistory().get(0).getClose());
-        System.out.println(testStock.getPriceHistory().get(0).getHigh());
+        System.out.println(testStock.getPriceHistory().get(0).getPrice());
+        System.out.println(testStock.getPriceHistory().get(0).getTime());
 
     }
 }
