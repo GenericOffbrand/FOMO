@@ -2,10 +2,16 @@ package com.fomofeeder.site.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fomofeeder.site.dao.StockDaoDB;
+import com.fomofeeder.site.dao.StockRepo;
 import com.fomofeeder.site.model.PricePoint;
 import com.fomofeeder.site.model.Stock;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 //to access tester through browser, use url localhost:8080/test/...
@@ -35,6 +41,11 @@ public class TesterAPI
         System.out.println("PONG");
         return "redirect:/test/ping.html";
     }
+    //After these tests, every method has attachment @ResponseBody
+    //In the actual program the class would have attachment @RestController instead
+    //so that each method doesn't require @ResponseBody
+
+
 //
 //    //test works as intended. allows REST POST to store string and GET to retrieve
 //    @GetMapping
@@ -66,10 +77,14 @@ public class TesterAPI
     "time": 55
     }
      */
+
+    @Autowired
+    StockRepo stockRepo;
+
     @GetMapping
     @ResponseBody
-    @JsonIgnore
-    @JsonIgnoreProperties("displayPriority")
+    //@JsonIgnore
+    //@JsonIgnoreProperties("displayPriority")
     public Stock getTestStock()
     {
         return testStock;
@@ -94,5 +109,24 @@ public class TesterAPI
         System.out.println(testStock.getPriceHistory().get(0).getPrice());
         System.out.println(testStock.getPriceHistory().get(0).getTime());
 
+    }
+
+//    @RequestMapping("database")
+//    @GetMapping()
+//    @ResponseBody
+//    public List<Stock> showDataBase()
+//    {
+//
+//
+//
+//    }
+
+//    @RequestMapping("database")
+    @GetMapping(path = "{ticker}")
+    @ResponseBody
+    public Stock showStock(@PathVariable("ticker") String tickerSymbol)
+    {
+        StockDaoDB test = new StockDaoDB();
+        return(test.getStock(tickerSymbol));
     }
 }

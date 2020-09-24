@@ -30,6 +30,10 @@ public class Stock
 
     private ArrayList<PricePoint> priceHistory = new ArrayList<>();
 
+    //Todo: remove this default constructor before shipping and solve any compiling issues caused
+    //Todo: by the lack of a default constructor. Particularly, when calling StockRepo.findAll()
+    public Stock() {}
+
     //Stock objects need to be able to be created using json strings for functions like
     //web price scraping
     public Stock(@JsonProperty("name") String name,
