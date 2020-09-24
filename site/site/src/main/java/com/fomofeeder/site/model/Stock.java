@@ -3,19 +3,35 @@ package com.fomofeeder.site.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.stereotype.Component;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 
 //By using Component code won't compile due to undefined bean of type "String"
 //@Component
+@Entity
+@Table(name = "stocks")
 public class Stock
 {
+    //Annotations above variable name are for the connection between Spring Boot and MySQL database
+    //names are the column name
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name= "id")
+    private int id;
+
+    @Column(name = "company_name")
     private String name;
+
+    @Column(name = "ticker")
     private String tickerSymbol;
+
+    @Column(name = "display_priority")
     private double displayPriority;
-    //does there have to be a spring bean injection here to make this work?
+
     private ArrayList<PricePoint> priceHistory = new ArrayList<>();
 
-    //Stock objects need to be able to be created using json strings.
+    //Stock objects need to be able to be created using json strings for functions like
+    //web price scraping
     public Stock(@JsonProperty("name") String name,
                  @JsonProperty("tickerSymbol") String tickerSymbol)
     {
