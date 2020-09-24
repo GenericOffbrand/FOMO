@@ -38,20 +38,52 @@ public class StockDaoDB implements StockDao
     public void addStock(Stock stock)
     {
 
-
     }
+
+
 
     @Override
     public Stock getStock(String tickerSymbol)
     {
         try{
 
-            ArrayList<PricePoint> priceHistory = new ArrayList<>();
-
             dbResultSet = dbStatement.executeQuery("SELECT * FROM stocks " +
                     "WHERE ticker = '" + tickerSymbol + "'");
-
             dbResultSet.next();
+
+            return createStockPOJO(dbResultSet);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public Stock getStock(int id)
+    {
+        try{
+
+            dbResultSet = dbStatement.executeQuery("SELECT * FROM stocks " +
+                    "WHERE id = " + id);
+            dbResultSet.next();
+
+            return createStockPOJO(dbResultSet);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    //Given a result set that references a certain stock, return an object from the database
+    public Stock createStockPOJO(ResultSet rs)
+    {
+        try
+        {
+            ArrayList<PricePoint> priceHistory = new ArrayList<>();
 
             int stockID = dbResultSet.getInt("id");
             //Empty ArrayList for Stock can still be altered since reference is still stored in variable priceHistory
@@ -70,21 +102,13 @@ public class StockDaoDB implements StockDao
                         dbResultSet.getTimestamp("time").getTime()));
             }
 
-
             return requestedStock;
         }
         catch (Exception e)
         {
-
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Override
-    public Stock getStock(int id)
-    {
-        return null;
     }
 
     @Override
