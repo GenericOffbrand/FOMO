@@ -16,7 +16,6 @@ public class StockDaoDB implements StockDao
 
     private Connection dbConnection;
     private Statement dbStatement;
-    private PreparedStatement dbPreparedStatement;
     private ResultSet dbResultSet = null;
 
     public StockDaoDB ()
@@ -34,11 +33,15 @@ public class StockDaoDB implements StockDao
 
     }
 
+    //Todo: make it so that either all object data is added or none. Right now, stock table can be updated but
+    //Todo: price history will not be added along with it.
     @Override
     public boolean addStock(Stock stock)
     {
         try
         {
+            PreparedStatement prepStmt;
+
             //Every stock has a unique ticker. There must be a check that no stock in DB matches object's ticker
             //before the object is added into database.
             dbResultSet = dbStatement.executeQuery("SELECT * FROM stocks WHERE ticker = '" +
@@ -61,13 +64,16 @@ public class StockDaoDB implements StockDao
             dbResultSet.next(); addedStockID = dbResultSet.getInt("id");
 
 
+            prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
+                    "VALUES (?, ?, ?)");
             //Price, time, and the stock referenced are critical information for price points.
             for (int i = 0; i < stock.getPriceHistory().size(); i++)
             {
-                dbStatement.execute("INSERT INTO prices(price, time, stocks_id) " +
-                        "VALUES (" + stock.getPriceHistory().get(i).getPrice() + ", " +
-                        stock.getPriceHistory().get(i).getTime() + ", " + addedStockID +
-                        ")");
+                prepStmt.setDouble(1, stock.getPriceHistory().get(i).getPrice());
+                prepStmt.setTimestamp(2, new Timestamp(stock.getPriceHistory().get(i).getTime()));
+                prepStmt.setInt(3, addedStockID);
+
+                prepStmt.execute();
             }
             return true;
         }
@@ -130,7 +136,7 @@ public class StockDaoDB implements StockDao
 
             //begin to populate all price data related to requested stock
             rs = dbStatement.executeQuery("SELECT * FROM prices " +
-                    "WHERE stocks_id = " + stockID);
+                    "WHERE stocks_id = " + stockID + " ORDER BY time DESC");
 
             while(rs.next())
             {
@@ -150,13 +156,69 @@ public class StockDaoDB implements StockDao
     @Override
     public Stock refreshPrices(Stock stock)
     {
-        return null;
+        return stock;
     }
 
+    //Decided that this method would overwrite entries with the same timestamp because it's the most general option.
+    //If more in depth comparisons were needed, then that would be the responsibility of a higher layer, not the Dao.
     @Override
-    public void updatePrices(Stock stock)
+    public boolean updatePrices(Stock stock)
     {
+        try
+        {
+            dbResultSet = dbStatement.executeQuery("SELECT * FROM stocks WHERE ticker = '" +
+                    stock.getTickerSymbol() + "'");
+            //We don't want to continue if there is no entry to update.
+            if (!dbResultSet.next() ||
+                !stock.getName().equalsIgnoreCase(dbResultSet.getString("company_name")))
+                {return false;}
 
+            int stockID = dbResultSet.getInt("id");
+
+            //Create a sorted Arraylist to check for overlap
+            dbResultSet = dbStatement.executeQuery("SELECT * FROM prices WHERE stocks_id = " +
+                    stockID + " ORDER BY time DESC");
+            ArrayList<PricePoint> dbPriceHistory = new ArrayList<>();
+            ArrayList<PricePoint> objPriceHistory = stock.getPriceHistory();
+            while(dbResultSet.next())
+            {
+                dbPriceHistory.add(new PricePoint(dbResultSet.getDouble("price"),
+                        dbResultSet.getTimestamp("time").getTime()));
+            }
+
+            int i;
+            int k = 0;
+            PreparedStatement prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
+                    "VALUES (?, ?, ?)");
+            for (i = 0; i <= objPriceHistory.size(); i++)
+            {
+                while(objPriceHistory.get(i).getTime() <= dbPriceHistory.get(k).getTime())
+                {
+                    //Deletes previous MySQL price entry if there are duplicate times
+                    if (objPriceHistory.get(i).getTime() == dbPriceHistory.get(k).getTime())
+                    {
+                        dbStatement.executeUpdate("DELETE FROM prices WHERE stocks_id = " +
+                                stockID + " AND time = " + dbPriceHistory.get(k).getTime());
+                    }
+                    k++;
+                }
+
+                //Adds object price entry to database only after checks for duplication
+                prepStmt.setDouble(1, objPriceHistory.get(i).getPrice());
+                prepStmt.setTimestamp(2, new Timestamp(objPriceHistory.get(i).getTime()));
+                prepStmt.setInt(3, stockID);
+
+
+                k = 0;
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
@@ -171,7 +233,7 @@ public class StockDaoDB implements StockDao
             if (!(dbResultSet.next() &&
                 stock.getTickerSymbol().equals(dbResultSet.getString("ticker")) &&
                 stock.getName().equalsIgnoreCase(dbResultSet.getString("company_name"))))
-                return false;
+                {return false;}
 
             //At this point we're certain of the stock we want to delete, but deletion from stocks table
             //must come after references in prices table
@@ -193,4 +255,5 @@ public class StockDaoDB implements StockDao
             return false;
         }
     }
+
 }

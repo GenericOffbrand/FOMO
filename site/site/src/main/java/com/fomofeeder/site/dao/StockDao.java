@@ -10,6 +10,6 @@ public interface StockDao
     public Stock getStock(String tickerSymbol);
     public Stock getStock(int id);
     public Stock refreshPrices (Stock stock);
-    public void updatePrices (Stock stock);
+    public boolean updatePrices (Stock stock);
     public boolean deleteStock (Stock stock);
 }

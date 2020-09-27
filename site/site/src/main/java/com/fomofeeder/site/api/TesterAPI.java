@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -145,5 +146,29 @@ public class TesterAPI
     public void deleteStock (@RequestBody Stock stock)
     {
         System.out.println(testDAO.deleteStock(stock));
+    }
+
+    @RequestMapping("MAZON")
+    @GetMapping
+    @ResponseBody
+    public void addMazonTest ()
+    {
+        ArrayList<PricePoint> mazonPrices = new ArrayList<>();
+        Stock mazon = new Stock("Amazon", "MAZON", 0, mazonPrices);
+
+        mazonPrices.add(new PricePoint(4, 1578182400000L));
+        mazonPrices.add(new PricePoint(5, 1578202400000L));
+
+        System.out.println(testDAO.addStock(mazon));
+    }
+
+    @RequestMapping("timestamp")
+    @GetMapping
+    @ResponseBody
+    public void timestampTest ()
+    {
+        System.out.println(new Timestamp(700000));
+        System.out.println(new Timestamp(700000L));
+        System.out.println(new Timestamp(1578182400000L));
     }
 }
