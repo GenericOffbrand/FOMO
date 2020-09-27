@@ -136,6 +136,14 @@ public class TesterAPI
     @ResponseBody
     public void addStock (@RequestBody Stock stock)
     {
-        testDAO.addStock(stock);
+        System.out.println(testDAO.addStock(stock));
+    }
+
+    @RequestMapping("delete")
+    @DeleteMapping
+    @ResponseBody
+    public void deleteStock (@RequestBody Stock stock)
+    {
+        System.out.println(testDAO.deleteStock(stock));
     }
 }

@@ -78,8 +78,6 @@ public class StockDaoDB implements StockDao
         }
     }
 
-
-
     @Override
     public Stock getStock(String tickerSymbol)
     {
@@ -164,6 +162,35 @@ public class StockDaoDB implements StockDao
     @Override
     public boolean deleteStock(Stock stock)
     {
-        return false;
+        try
+        {
+            dbResultSet = dbStatement.executeQuery("SELECT * FROM stocks WHERE ticker = '" +
+                    stock.getTickerSymbol() + "'");
+            //Checks existence, ticker, and name to make absolutely sure user of deleteStock is not deleting
+            //on accident
+            if (!(dbResultSet.next() &&
+                stock.getTickerSymbol().equals(dbResultSet.getString("ticker")) &&
+                stock.getName().equalsIgnoreCase(dbResultSet.getString("company_name"))))
+                return false;
+
+            //At this point we're certain of the stock we want to delete, but deletion from stocks table
+            //must come after references in prices table
+            int stockID = dbResultSet.getInt("id");
+
+            //Price information needs to be deleted as well to make space if a future new stock gets the same
+            //ID as the deleted stock
+            dbStatement.executeUpdate("DELETE FROM prices WHERE stocks_id = " + stockID);
+
+            //After all prices with the foreign key from stock are deleted, the stock entry in stocks can be
+            //deleted as well.
+            dbStatement.executeUpdate("DELETE FROM stocks WHERE id = " + stockID);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
