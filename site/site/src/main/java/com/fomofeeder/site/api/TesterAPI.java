@@ -121,12 +121,21 @@ public class TesterAPI
 //
 //    }
 
+    private StockDaoDB testDAO = new StockDaoDB();
 //    @RequestMapping("database")
     @GetMapping(path = "{ticker}")
     @ResponseBody
     public Stock showStock(@PathVariable("ticker") String tickerSymbol)
     {
-        StockDaoDB test = new StockDaoDB();
-        return(test.getStock(tickerSymbol));
+
+        return(testDAO.getStock(tickerSymbol));
+    }
+
+    @RequestMapping("submit")
+    @PostMapping
+    @ResponseBody
+    public void addStock (@RequestBody Stock stock)
+    {
+        testDAO.addStock(stock);
     }
 }
