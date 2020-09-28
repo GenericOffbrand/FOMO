@@ -191,23 +191,21 @@ public class StockDaoDB implements StockDao
             int k = 0;
             prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
                     "VALUES (?, ?, ?)");
-            boolean updated;
             for (i = 0; i < objPriceHistory.size(); i++)
             {
-                updated = false;
                 while(objPriceHistory.get(i).getTime() <= dbPriceHistory.get(k).getTime())
                 {
                     //Deletes previous MySQL price entry if there are duplicate times
                     if (objPriceHistory.get(i).getTime() == dbPriceHistory.get(k).getTime())
                     {
-                        prepStmt = dbConnection.prepareStatement("UPDATE prices SET price = ? " +
-                                "WHERE stocks_id = ? AND time = ?");
-                        prepStmt.setDouble(1, objPriceHistory.get(i).getPrice());
-                        prepStmt.setInt(2, stockID);
-                        prepStmt.setTimestamp(3, new Timestamp(dbPriceHistory.get(k).getTime()));
+                        prepStmt = dbConnection.prepareStatement("DELETE FROM prices WHERE stocks_id = ? AND " +
+                                "time = ?");
+//                        dbStatement.executeUpdate("DELETE FROM prices WHERE stocks_id = " +
+//                                stockID + " AND time = " + new Timestamp(dbPriceHistory.get(k).getTime()));
+                        prepStmt.setInt(1, stockID);
+                        prepStmt.setTimestamp(2, new Timestamp(dbPriceHistory.get(k).getTime()));
 
                         prepStmt.executeUpdate();
-                        updated = true;
 
                         prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
                                 "VALUES (?, ?, ?)");
@@ -216,15 +214,11 @@ public class StockDaoDB implements StockDao
                 }
 
                 //Adds object price entry to database only after checks for duplication
-                if (!updated)
-                {
-                    prepStmt.setDouble(1, objPriceHistory.get(i).getPrice());
-                    prepStmt.setTimestamp(2, new Timestamp(objPriceHistory.get(i).getTime()));
-                    prepStmt.setInt(3, stockID);
+                prepStmt.setDouble(1, objPriceHistory.get(i).getPrice());
+                prepStmt.setTimestamp(2, new Timestamp(objPriceHistory.get(i).getTime()));
+                prepStmt.setInt(3, stockID);
 
-                    prepStmt.execute();
-                }
-                updated = false;
+                prepStmt.execute();
                 k = 0;
             }
 
