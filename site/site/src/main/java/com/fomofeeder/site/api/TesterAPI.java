@@ -3,6 +3,7 @@ package com.fomofeeder.site.api;
 import com.fomofeeder.site.dao.StockDaoDB;
 import com.fomofeeder.site.model.PricePoint;
 import com.fomofeeder.site.model.Stock;
+import com.fomofeeder.site.service.StockScraper;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -179,5 +180,21 @@ public class TesterAPI
         tslaPrices.add(new PricePoint(520, 1578268800000L));
 
         System.out.println(testDAO.updatePrices(tsla));
+    }
+
+    @RequestMapping("scrapertest")
+    @GetMapping
+    @ResponseBody
+    public void scraperTest()
+    {
+        StockScraper testScraper = new StockScraper();
+
+        Stock testStock = testScraper.minuteStock("TSLA", "Tesla Inc");
+
+        for(int i = 0; i < testStock.getPriceHistory().size(); i++)
+        {
+            System.out.println(testStock.getPriceHistory().get(i).getPrice() + "\n"
+            + testStock.getPriceHistory().get(i).getTime());
+        }
     }
 }
