@@ -1,18 +1,13 @@
 package com.fomofeeder.site.api;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fomofeeder.site.dao.StockDaoDB;
-import com.fomofeeder.site.dao.StockRepo;
 import com.fomofeeder.site.model.PricePoint;
 import com.fomofeeder.site.model.Stock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.List;
 
 
 //to access tester through browser, use url localhost:8080/test/...
@@ -78,9 +73,6 @@ public class TesterAPI
     "time": 55
     }
      */
-
-    @Autowired
-    StockRepo stockRepo;
 
     @GetMapping
     @ResponseBody

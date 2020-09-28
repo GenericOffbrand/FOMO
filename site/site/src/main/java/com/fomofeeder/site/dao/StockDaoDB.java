@@ -175,7 +175,7 @@ public class StockDaoDB implements StockDao
 
             int stockID = dbResultSet.getInt("id");
 
-            //Create a sorted Arraylist to check for overlap
+            //Create a sorted ArrayList to check for overlap
             dbResultSet = dbStatement.executeQuery("SELECT * FROM prices WHERE stocks_id = " +
                     stockID + " ORDER BY time DESC");
             ArrayList<PricePoint> dbPriceHistory = new ArrayList<>();
