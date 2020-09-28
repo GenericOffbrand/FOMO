@@ -116,7 +116,7 @@ public class TesterAPI
 //    }
 
     private StockDaoDB testDAO = new StockDaoDB();
-//    @RequestMapping("database")
+    @RequestMapping("database")
     @GetMapping(path = "{ticker}")
     @ResponseBody
     public Stock showStock(@PathVariable("ticker") String tickerSymbol)
@@ -197,4 +197,16 @@ public class TesterAPI
             + testStock.getPriceHistory().get(i).getTime());
         }
     }
+
+
+    @RequestMapping("parseTest")
+    @GetMapping
+    @ResponseBody
+    public void jsonParseTest()
+    {
+        StockScraper testScraper = new StockScraper();
+
+        testScraper.minuteStock("TSLA", "Tesla Inc");
+    }
+
 }
