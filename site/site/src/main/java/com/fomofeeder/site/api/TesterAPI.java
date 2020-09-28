@@ -163,4 +163,21 @@ public class TesterAPI
         System.out.println(new Timestamp(700000L));
         System.out.println(new Timestamp(1578182400000L));
     }
+
+    @RequestMapping("updateTSLA")
+    @GetMapping
+    @ResponseBody
+    public void updateTest()
+    {
+        //1578182400000L        2020-01-04 16:00:00
+        //1578096000000L        2020-01-03 16:00:00
+        //86400000L             24 hrs
+        ArrayList<PricePoint> tslaPrices = new ArrayList<>();
+        Stock tsla = new Stock("Tesla Inc", "TSLA", 0, tslaPrices);
+
+        tslaPrices.add(new PricePoint(421,1578182400000L));
+        tslaPrices.add(new PricePoint(520, 1578268800000L));
+
+        System.out.println(testDAO.updatePrices(tsla));
+    }
 }

@@ -166,6 +166,7 @@ public class StockDaoDB implements StockDao
     {
         try
         {
+            PreparedStatement prepStmt;
             dbResultSet = dbStatement.executeQuery("SELECT * FROM stocks WHERE ticker = '" +
                     stock.getTickerSymbol() + "'");
             //We don't want to continue if there is no entry to update.
@@ -188,17 +189,26 @@ public class StockDaoDB implements StockDao
 
             int i;
             int k = 0;
-            PreparedStatement prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
+            prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
                     "VALUES (?, ?, ?)");
-            for (i = 0; i <= objPriceHistory.size(); i++)
+            for (i = 0; i < objPriceHistory.size(); i++)
             {
                 while(objPriceHistory.get(i).getTime() <= dbPriceHistory.get(k).getTime())
                 {
                     //Deletes previous MySQL price entry if there are duplicate times
                     if (objPriceHistory.get(i).getTime() == dbPriceHistory.get(k).getTime())
                     {
-                        dbStatement.executeUpdate("DELETE FROM prices WHERE stocks_id = " +
-                                stockID + " AND time = " + dbPriceHistory.get(k).getTime());
+                        prepStmt = dbConnection.prepareStatement("DELETE FROM prices WHERE stocks_id = ? AND " +
+                                "time = ?");
+//                        dbStatement.executeUpdate("DELETE FROM prices WHERE stocks_id = " +
+//                                stockID + " AND time = " + new Timestamp(dbPriceHistory.get(k).getTime()));
+                        prepStmt.setInt(1, stockID);
+                        prepStmt.setTimestamp(2, new Timestamp(dbPriceHistory.get(k).getTime()));
+
+                        prepStmt.executeUpdate();
+
+                        prepStmt = dbConnection.prepareStatement("INSERT INTO prices(price, time, stocks_id) " +
+                                "VALUES (?, ?, ?)");
                     }
                     k++;
                 }
@@ -208,7 +218,7 @@ public class StockDaoDB implements StockDao
                 prepStmt.setTimestamp(2, new Timestamp(objPriceHistory.get(i).getTime()));
                 prepStmt.setInt(3, stockID);
 
-
+                prepStmt.execute();
                 k = 0;
             }
 
